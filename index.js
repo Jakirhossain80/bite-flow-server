@@ -7,8 +7,8 @@ import cookieParser from "cookie-parser";
 import connectDB from "./config/db.js";         
 import corsOptions from "./cors/corsOptions.js";
 import userRoutes from "./routes/userRoutes.js";
-import notFound from "./middlewares/notFound.js";
-import errorHandler from "./middlewares/errorHandler.js";
+import notFound from "./middlerwares/notFound.js";
+import errorHandler from "./middlerwares/errorHandler.js";
 
 // Load .env variables
 dotenv.config();
