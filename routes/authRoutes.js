@@ -1,3 +1,4 @@
+// authRoutes.js
 import express from "express";
 import {
   adminLogin,
@@ -8,6 +9,7 @@ import {
   registerUser,
 } from "../controllers/authController.js";
 import { protect } from "../middlewares/authMiddleware.js";
+
 const authRoutes = express.Router();
 
 authRoutes.post("/register", registerUser);
