@@ -6,7 +6,7 @@ import cookieParser from "cookie-parser";
 
 import connectDB from "./config/db.js";         
 import corsOptions from "./cors/corsOptions.js";
-import userRoutes from "./routes/userRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 import notFound from "./middlewares/notFound.js";
 import errorHandler from "./middlewares/errorHandler.js";
 
@@ -30,7 +30,7 @@ app.get("/", (req, res) => {
 });
 
 // Example routes
-app.use("/api/users", userRoutes);
+app.use("/api/users", authRoutes);
 
 // 404 + error handlers
 app.use(notFound);
