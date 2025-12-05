@@ -9,6 +9,8 @@ import corsOptions from "./cors/corsOptions.js";
 import authRoutes from "./routes/authRoutes.js";
 import notFound from "./middlewares/notFound.js";
 import errorHandler from "./middlewares/errorHandler.js";
+import uploadRoutes from "./routes/uploadRoutes.js";
+
 
 // Load .env variables
 dotenv.config();
@@ -29,8 +31,10 @@ app.get("/", (req, res) => {
   res.json({ message: "Restaurant API is running..." });
 });
 
-// Example routes
+// Example routes/Base path
 app.use("/api/auth", authRoutes);
+app.use("/api/upload", uploadRoutes);
+
 
 // 404 + error handlers
 app.use(notFound);
