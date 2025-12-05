@@ -10,6 +10,7 @@ import authRoutes from "./routes/authRoutes.js";
 import notFound from "./middlewares/notFound.js";
 import errorHandler from "./middlewares/errorHandler.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
+import categoryRoutes from "./routes/categoryRoutes.js";
 
 
 // Load .env variables
@@ -34,6 +35,7 @@ app.get("/", (req, res) => {
 // Example routes/Base path
 app.use("/api/auth", authRoutes);
 app.use("/api/upload", uploadRoutes);
+app.use("/api/category", categoryRoutes);
 
 
 // 404 + error handlers
