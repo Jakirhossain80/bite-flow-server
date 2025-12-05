@@ -30,7 +30,7 @@ app.get("/", (req, res) => {
 });
 
 // Example routes
-app.use("/api/users", authRoutes);
+app.use("/api/auth", authRoutes);
 
 // 404 + error handlers
 app.use(notFound);
