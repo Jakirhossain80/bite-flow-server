@@ -1,5 +1,6 @@
 // controllers/menuController.js
 import fs from "fs";
+import mongoose from "mongoose";
 import Menu from "../models/menuModel.js";
 import cloudinary from "../config/cloudinary.js";
 
@@ -13,10 +14,20 @@ export const addMenuItem = async (req, res) => {
         .json({ message: "All fields are required", success: false });
     }
 
+    // ✅ Validate category as a proper ObjectId
+    if (!mongoose.Types.ObjectId.isValid(category)) {
+      return res.status(400).json({
+        message:
+          "Invalid category id. Please send a valid Category _id from /api/category/all",
+        success: false,
+      });
+    }
+
     const uploadResult = await cloudinary.uploader.upload(req.file.path, {
       folder: "biteflow/menu",
     });
 
+    // Optional: remove local temp file
     fs.unlink(req.file.path, (err) => {
       if (err) console.error("Error deleting local file:", err.message);
     });
@@ -67,6 +78,15 @@ export const updateMenuItem = async (req, res) => {
       return res
         .status(404)
         .json({ message: "Menu item not found", success: false });
+    }
+
+    // ✅ If category is sent, validate it
+    if (category && !mongoose.Types.ObjectId.isValid(category)) {
+      return res.status(400).json({
+        message:
+          "Invalid category id. Please send a valid Category _id from /api/category/all",
+        success: false,
+      });
     }
 
     if (req.file) {
