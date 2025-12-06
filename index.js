@@ -11,6 +11,7 @@ import notFound from "./middlewares/notFound.js";
 import errorHandler from "./middlewares/errorHandler.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
+import menuRoutes from "./routes/menuRoutes.js";
 
 
 // Load .env variables
@@ -36,6 +37,7 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/category", categoryRoutes);
+app.use("/api/menu", menuRoutes);
 
 
 // 404 + error handlers
