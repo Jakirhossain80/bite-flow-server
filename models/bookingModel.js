@@ -1,41 +1,52 @@
+// models/bookingModel.js
 import mongoose from "mongoose";
-const bookingSchema=new mongoose.Schema({
-user: {
+
+const bookingSchema = new mongoose.Schema(
+  {
+    user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-     name: {
+    name: {
       type: String,
       required: true,
+      trim: true,
     },
-     phone: {
+    phone: {
       type: String,
       required: true,
+      trim: true,
     },
-     numberOfPeople: {
+    numberOfPeople: {
       type: Number,
       required: true,
       min: 1,
     },
-      date: {
+    date: {
       type: String,
       required: true,
+      trim: true,
     },
-  time: {
+    time: {
       type: String,
       required: true,
+      trim: true,
     },
-     note: {
+    note: {
       type: String,
       default: "",
+      trim: true,
     },
-     status: {
+    status: {
       type: String,
       enum: ["Pending", "Approved", "Cancelled"],
       default: "Pending",
     },
-},{timestamps:true});
+  },
+  { timestamps: true }
+);
 
-const Booking=mongoose.model("Booking",bookingSchema);
+const Booking = mongoose.model("Booking", bookingSchema);
+
 export default Booking;

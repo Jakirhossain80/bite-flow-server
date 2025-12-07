@@ -14,6 +14,7 @@ import categoryRoutes from "./routes/categoryRoutes.js";
 import menuRoutes from "./routes/menuRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
+import bookingRoutes from "./routes/bookingRoutes.js";
 
 
 // Load .env variables
@@ -42,6 +43,7 @@ app.use("/api/category", categoryRoutes);
 app.use("/api/menu", menuRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/order", orderRoutes);
+app.use("/api/booking", bookingRoutes);
 
 
 // 404 + error handlers
