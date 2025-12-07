@@ -12,6 +12,7 @@ import errorHandler from "./middlewares/errorHandler.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import menuRoutes from "./routes/menuRoutes.js";
+import cartRoutes from "./routes/cartRoutes.js";
 
 
 // Load .env variables
@@ -38,6 +39,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/category", categoryRoutes);
 app.use("/api/menu", menuRoutes);
+app.use("/api/cart", cartRoutes);
 
 
 // 404 + error handlers
