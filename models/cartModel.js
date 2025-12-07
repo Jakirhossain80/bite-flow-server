@@ -1,26 +1,31 @@
+// models/cartModel.js
 import mongoose from "mongoose";
-const cartSchema=new mongoose.Schema({
- user:{
-   type:mongoose.Schema.Types.ObjectId,
-   ref:"User",
-   required:true
- },
- items:[
-   {
-      menuItem:{
-           type: mongoose.Schema.Types.ObjectId,
+
+const cartSchema = new mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    items: [
+      {
+        menuItem: {
+          type: mongoose.Schema.Types.ObjectId,
           ref: "Menu",
           required: true,
+        },
+        quantity: {
+          type: Number,
+          required: true,
+          min: 1,
+        },
       },
-      quantity:{
-         type:Number,
-         required:true,
-         
-      }
-   }
- ]
+    ],
+  },
+  { timestamps: true }
+);
 
-},{timestamps:true});
+const Cart = mongoose.model("Cart", cartSchema);
 
-const Cart=mongoose.model("Cart",cartSchema);
 export default Cart;

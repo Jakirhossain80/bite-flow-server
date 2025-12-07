@@ -1,7 +1,6 @@
+// routes/cartRoutes.js
 import express from "express";
-
-import { adminOnly, protect } from "../middlewares/authMiddleware.js";
-
+import { protect } from "../middlewares/authMiddleware.js";
 import {
   addToCart,
   getCart,
@@ -13,4 +12,5 @@ const cartRoutes = express.Router();
 cartRoutes.post("/add", protect, addToCart);
 cartRoutes.get("/get", protect, getCart);
 cartRoutes.delete("/remove/:menuId", protect, removeFromCart);
+
 export default cartRoutes;
