@@ -3,33 +3,41 @@ import User from "../models/userModel.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 
-// Generate JWT
+// Determine environment (dev vs production)
+const isProduction = process.env.NODE_ENV === "production";
+
+// Centralized cookie options for all auth cookies
+const cookieOptions = {
+  httpOnly: true,
+  secure: isProduction,                   // true only in production (HTTPS)
+  sameSite: isProduction ? "none" : "lax", // 'lax' in dev so cookie is saved on localhost
+  maxAge: 24 * 60 * 60 * 1000,           // 1 day
+};
+
+// Generate JWT and set it as an HTTP-only cookie
 const generateToken = (res, payload) => {
   const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1d" });
-  res.cookie("token", token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "none",
-    maxAge: 24 * 60 * 60 * 1000,
-  });
+  res.cookie("token", token, cookieOptions);
   return token;
 };
 
 export const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
+
     if (!name || !email || !password) {
       return res.json({
         message: "Please fill all the fields",
         success: false,
       });
     }
+
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.json({ message: "User already exists", success: false });
     }
 
-    const user = await User.create({ name, email, password });
+    await User.create({ name, email, password });
 
     return res.json({ message: "User registered successfully", success: true });
   } catch (error) {
@@ -41,6 +49,7 @@ export const registerUser = async (req, res) => {
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
+
     if (!email || !password) {
       return res.json({
         message: "Please fill all the fields",
@@ -58,8 +67,13 @@ export const loginUser = async (req, res) => {
       return res.json({ message: "Invalid credentials", success: false });
     }
 
-    generateToken(res, { id: user._id, role: user.isAdmin ? "admin" : "user" });
-    res.json({
+    // Payload matches your existing protect middleware expectations
+    generateToken(res, {
+      id: user._id,
+      role: user.isAdmin ? "admin" : "user",
+    });
+
+    return res.json({
       message: "User logged in successfully",
       success: true,
       user: {
@@ -76,12 +90,14 @@ export const loginUser = async (req, res) => {
 export const adminLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
+
     if (!email || !password) {
       return res.json({
         message: "Please fill all the fields",
         success: false,
       });
     }
+
     const adminEmail = process.env.ADMIN_EMAIL;
     const adminPassword = process.env.ADMIN_PASSWORD;
 
@@ -89,16 +105,8 @@ export const adminLogin = async (req, res) => {
       return res.json({ message: "Invalid credentials", success: false });
     }
 
-    const token = jwt.sign({ email }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
-    });
-
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
-      maxAge: 24 * 60 * 60 * 1000,
-    });
+    // Issue a token that adminOnly can read (it checks decoded.email)
+    generateToken(res, { email: adminEmail, role: "admin"  });
 
     return res.json({
       success: true,
@@ -131,7 +139,7 @@ export const getProfile = async (req, res) => {
         .status(404)
         .json({ message: "User not found", success: false });
     }
-    res.json(user);
+    return res.json(user);
   } catch (error) {
     return res.json({ message: "Internal server error", success: false });
   }
@@ -141,7 +149,7 @@ export const isAuth = async (req, res) => {
   try {
     const { id } = req.user;
     const user = await User.findById(id).select("-password");
-    res.json({ success: true, user });
+    return res.json({ success: true, user });
   } catch (error) {
     return res.json({ message: "Internal server error", success: false });
   }

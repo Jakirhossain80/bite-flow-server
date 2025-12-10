@@ -1,6 +1,7 @@
 // middlewares/authMiddleware.js
 import jwt from "jsonwebtoken";
 
+// Protect middleware: for normal authenticated users (and DB-based admins)
 export const protect = (req, res, next) => {
   const token = req.cookies?.token;
 
@@ -13,17 +14,18 @@ export const protect = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Ensure this is a normal user token (must have an id)
+    // We expect normal users (and DB-admins) to have an id
     if (!decoded.id) {
       return res
         .status(401)
         .json({ message: "Not Authorized", success: false });
     }
 
-    // Attach a normalized user object
+    // Attach a normalized user object to the request
     req.user = {
       id: decoded.id,
       role: decoded.role || "user",
+      email: decoded.email,
     };
 
     next();
@@ -35,6 +37,7 @@ export const protect = (req, res, next) => {
   }
 };
 
+// Admin-only middleware: for admin routes (env-based admin OR DB-based admin)
 export const adminOnly = (req, res, next) => {
   const token = req.cookies?.token;
 
@@ -46,9 +49,15 @@ export const adminOnly = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.admin = decoded;
 
-    if (req.admin.email === process.env.ADMIN_EMAIL) {
+    // Allow if:
+    // - The token has role "admin" (DB-based admin or env admin), OR
+    // - The token email matches ADMIN_EMAIL (backwards compatible)
+    const isEnvAdmin = decoded.email === process.env.ADMIN_EMAIL;
+    const isRoleAdmin = decoded.role === "admin";
+
+    if (isEnvAdmin || isRoleAdmin) {
+      req.admin = decoded;
       return next();
     }
 
