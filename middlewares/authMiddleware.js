@@ -50,9 +50,7 @@ export const adminOnly = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Allow if:
-    // - The token has role "admin" (DB-based admin or env admin), OR
-    // - The token email matches ADMIN_EMAIL (backwards compatible)
+
     const isEnvAdmin = decoded.email === process.env.ADMIN_EMAIL;
     const isRoleAdmin = decoded.role === "admin";
 

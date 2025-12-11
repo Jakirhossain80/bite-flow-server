@@ -72,16 +72,46 @@ export const addToCart = async (req, res) => {
 
 export const getCart = async (req, res) => {
   try {
-    const { id } = req.user;
+    const { id } = req.user || {};
+
+    if (!id) {
+      return res
+        .status(401)
+        .json({ message: "Not Authorized", success: false });
+    }
+
     const cart = await Cart.findOne({ user: id }).populate("items.menuItem");
 
     if (!cart) {
-      return res
-        .status(200)
-        .json({ success: true, cart: { user: id, items: [] } });
+      return res.status(200).json({
+        success: true,
+        cart: { user: id, items: [] },
+        summary: {
+          itemCount: 0,
+          totalPrice: 0,
+        },
+      });
     }
 
-    return res.status(200).json({ success: true, cart });
+    const itemCount = cart.items.reduce(
+      (sum, item) => sum + (item.quantity || 0),
+      0
+    );
+
+    const totalPrice = cart.items.reduce((sum, item) => {
+      const price = Number(item.menuItem?.price || 0);
+      const qty = Number(item.quantity || 0);
+      return sum + price * qty;
+    }, 0);
+
+    return res.status(200).json({
+      success: true,
+      cart,
+      summary: {
+        itemCount,
+        totalPrice,
+      },
+    });
   } catch (error) {
     console.error(error);
     return res
@@ -92,8 +122,14 @@ export const getCart = async (req, res) => {
 
 export const removeFromCart = async (req, res) => {
   try {
-    const { id } = req.user;
+    const { id } = req.user || {};
     const { menuId } = req.params;
+
+    if (!id) {
+      return res
+        .status(401)
+        .json({ message: "Not Authorized", success: false });
+    }
 
     if (!mongoose.Types.ObjectId.isValid(menuId)) {
       return res
@@ -101,26 +137,33 @@ export const removeFromCart = async (req, res) => {
         .json({ message: "Invalid menuId", success: false });
     }
 
-    const cart = await Cart.findOne({ user: id });
-    if (!cart) {
+    // Use atomic $pull update to avoid VersionError from concurrent saves
+    const result = await Cart.updateOne(
+      { user: id },
+      { $pull: { items: { menuItem: menuId } } }
+    );
+
+    const matchedCount =
+      typeof result.matchedCount === "number"
+        ? result.matchedCount
+        : result.n || 0;
+    const modifiedCount =
+      typeof result.modifiedCount === "number"
+        ? result.modifiedCount
+        : result.nModified || 0;
+
+    if (matchedCount === 0) {
       return res
         .status(404)
         .json({ message: "Cart not found", success: false });
     }
 
-    const initialLength = cart.items.length;
-    cart.items = cart.items.filter(
-      (item) => item.menuItem.toString() !== menuId
-    );
-
-    if (cart.items.length === initialLength) {
+    if (modifiedCount === 0) {
       return res.status(404).json({
         message: "Item not found in cart",
         success: false,
       });
     }
-
-    await cart.save();
 
     return res
       .status(200)
