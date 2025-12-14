@@ -4,11 +4,12 @@ import {
   adminLogin,
   getProfile,
   isAuth,
+  isAdminAuth,
   loginUser,
   logoutUser,
   registerUser,
 } from "../controllers/authController.js";
-import { protect } from "../middlewares/authMiddleware.js";
+import { protect, adminOnly  } from "../middlewares/authMiddleware.js";
 
 const authRoutes = express.Router();
 
@@ -18,5 +19,6 @@ authRoutes.post("/admin/login", adminLogin);
 authRoutes.post("/logout", logoutUser);
 authRoutes.get("/profile", protect, getProfile);
 authRoutes.get("/is-auth", protect, isAuth);
+authRoutes.get("/is-admin-auth", adminOnly, isAdminAuth);
 
 export default authRoutes;

@@ -9,9 +9,9 @@ const isProduction = process.env.NODE_ENV === "production";
 // Centralized cookie options for all auth cookies
 const cookieOptions = {
   httpOnly: true,
-  secure: isProduction,                   // true only in production (HTTPS)
+  secure: isProduction, // true only in production (HTTPS)
   sameSite: isProduction ? "none" : "lax", // 'lax' in dev so cookie is saved on localhost
-  maxAge: 24 * 60 * 60 * 1000,           // 1 day
+  maxAge: 24 * 60 * 60 * 1000, // 1 day
 };
 
 // Generate JWT and set it as an HTTP-only cookie
@@ -106,7 +106,7 @@ export const adminLogin = async (req, res) => {
     }
 
     // Issue a token that adminOnly can read (it checks decoded.email)
-    generateToken(res, { email: adminEmail, role: "admin"  });
+    generateToken(res, { email: adminEmail, role: "admin" });
 
     return res.json({
       success: true,
@@ -152,5 +152,21 @@ export const isAuth = async (req, res) => {
     return res.json({ success: true, user });
   } catch (error) {
     return res.json({ message: "Internal server error", success: false });
+  }
+};
+
+// ✅ NEW: Admin auth check (use with adminOnly middleware)
+export const isAdminAuth = async (req, res) => {
+  try {
+    // adminOnly middleware sets req.admin = decoded
+    return res.json({
+      success: true,
+      admin: {
+        email: req.admin?.email || "admin",
+        role: req.admin?.role || "admin",
+      },
+    });
+  } catch (error) {
+    return res.status(401).json({ success: false, message: "Not Authorized" });
   }
 };
