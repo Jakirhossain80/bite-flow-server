@@ -4,7 +4,7 @@ const allowedOrigins = [
   "http://localhost:5173", // Vite (frontend)
   "http://localhost:5174", // (optional) Vite alternate port
   "http://localhost:3000", // Next.js/React
-  "https://biteflow.vercel.app", // ✅ Deployed frontend (Vercel)
+  "https://biteflow-client.vercel.app", // ✅ Deployed frontend (Vercel)
   // Add your custom domain here later if you use one
 ];
 
